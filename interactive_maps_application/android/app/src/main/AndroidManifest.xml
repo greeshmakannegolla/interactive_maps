@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.interactive_maps_application">
+   package="com.example.interactive_maps_application">
+   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
    <application
         android:label="interactive_maps_application"
         android:name="${applicationName}"
