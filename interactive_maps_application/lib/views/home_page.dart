@@ -65,10 +65,34 @@ class _HomePageState extends State<HomePage> {
       var marker = Marker(
           point: LatLng(country.latLng[0], country.latLng[1]),
           builder: (_) {
-            return const Icon(
-              Icons.location_on_rounded,
-              size: 40,
-              color: ColorConstants.kMarkerColor,
+            GlobalKey toolTipKey = GlobalKey();
+//TODO: complete all details
+            String getCountryDetails() {
+              var msg = 'Name : ' +
+                  country.name +
+                  '\n' +
+                  'Capital : ' +
+                  country.capital.join(', ') +
+                  '\n' +
+                  'Population : ' +
+                  country.population.toString();
+              return msg;
+            }
+
+            return InkWell(
+              onTap: () {
+                final dynamic _toolTip = toolTipKey.currentState;
+                _toolTip.ensureTooltipVisible();
+              },
+              child: Tooltip(
+                key: toolTipKey,
+                message: getCountryDetails(),
+                child: const Icon(
+                  Icons.location_on_rounded,
+                  size: 50,
+                  color: ColorConstants.kMarkerColor,
+                ),
+              ),
             );
           });
       _countryMarkerList.add(marker);
@@ -116,12 +140,24 @@ class _HomePageState extends State<HomePage> {
     var currentLocationMarker = Marker(
         point: LatLng(_currentLatitude, _currentLongitude),
         builder: (_) {
-          return const Icon(
-            Icons.location_on_rounded,
-            size: 40,
-            color: Colors.green,
+          GlobalKey toolTipKey = GlobalKey();
+          return InkWell(
+            onTap: () {
+              final dynamic _toolTip = toolTipKey.currentState;
+              _toolTip.ensureTooltipVisible();
+            },
+            child: Tooltip(
+              message: 'Current Location',
+              key: toolTipKey,
+              child: const Icon(
+                Icons.location_on_rounded,
+                size: 50,
+                color: Colors.green,
+              ),
+            ),
           );
         });
+
     _countryMarkerList.add(currentLocationMarker);
 
     _isLocationLoading = false;

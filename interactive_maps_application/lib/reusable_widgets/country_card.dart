@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:interactive_maps_application/helpers/color_constants.dart';
 import 'package:interactive_maps_application/helpers/style_constants.dart';
 import 'package:interactive_maps_application/models/country_data_model.dart';
-import 'package:interactive_maps_application/views/home_page.dart';
 
 class CountryCard extends StatefulWidget {
   final CountryDataModel countryDetail;
