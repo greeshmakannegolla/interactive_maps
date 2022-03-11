@@ -7,7 +7,7 @@ class CountryDataModel {
   List latLng = []; //TODO: Set to default
 
   CountryDataModel.fromJSON(Map<String, dynamic> json) {
-    name = json["name"]['official'] ?? '';
+    name = json["name"]['common'] ?? '';
     population = json['population'] ?? 0;
     capital = json['capital'] ?? [];
     borders = json['borders'] ?? [];

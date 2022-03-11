@@ -23,7 +23,7 @@ class _CountryCardState extends State<CountryCard> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              widget.countryDetail.name,
+              widget.countryDetail.name.replaceAll(RegExp('[^A-Za-z0-9]'), ' '),
               style: kSubHeader,
             ),
             const SizedBox(
@@ -40,11 +40,18 @@ class _CountryCardState extends State<CountryCard> {
               'Population: ' + widget.countryDetail.population.toString(),
               style: kData,
             ),
-            const SizedBox(
-              height: 10,
-            ),
-            Text('Borders: ' + widget.countryDetail.borders.join(', '),
-                style: kData),
+            widget.countryDetail.borders.isEmpty
+                ? Container()
+                : Column(
+                    children: [
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                          'Borders: ' + widget.countryDetail.borders.join(', '),
+                          style: kData),
+                    ],
+                  ),
           ],
         ),
       ),
