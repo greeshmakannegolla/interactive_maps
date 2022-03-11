@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:interactive_maps_application/helpers/color_constants.dart';
 import 'package:interactive_maps_application/helpers/string_constants.dart';
 import 'package:interactive_maps_application/models/country_data_model.dart';
@@ -10,10 +11,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 class HomePage extends StatefulWidget {
-  final latitude;
-  final longitude;
-
-  const HomePage({Key? key, this.latitude, this.longitude}) : super(key: key);
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -21,26 +19,32 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final PanelController _panelController = PanelController();
-
-  MapController _mapController = MapController();
-
+  final MapController _mapController = MapController();
   final List<Marker> _countryMarkerList = [];
 
+  bool _isCountriesLoading = true;
+  bool _isLocationLoading = true;
   bool _isLoading = true;
+
+  double _currentLatitude = 47.6964719;
+  double _currentLongitude = 13.3457347;
 
   CountryDataListModel _countryList = CountryDataListModel();
 
-  final _myLocation = LatLng(11.059821, 78.387451); //TODO: Get current location
-
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _fetchCountryList();
+    _determinePosition();
+  }
 
-    // Future.delayed(const Duration(seconds: 5), () {
-    //   _mapController.move(LatLng(17.123184, 79.208824), 10);
-    // });
+  _setLoadedData() {
+    if (!_isCountriesLoading && !_isLocationLoading) {
+      _isLoading = false;
+      if (mounted) {
+        setState(() {});
+      }
+    }
   }
 
   _fetchCountryList() async {
@@ -51,15 +55,84 @@ class _HomePageState extends State<HomePage> {
       //TODO: Show something went wrong popup
       //TODO: Check internet
     } finally {
-      _isLoading = false;
-      setState(() {});
+      _isCountriesLoading = false;
+      _setLoadedData();
     }
+  }
+
+  void _createMarkers() {
+    for (var country in _countryList.countries) {
+      var marker = Marker(
+          point: LatLng(country.latLng[0], country.latLng[1]),
+          builder: (_) {
+            return const Icon(
+              Icons.location_on_rounded,
+              size: 40,
+              color: ColorConstants.kMarkerColor,
+            );
+          });
+      _countryMarkerList.add(marker);
+    }
+  }
+
+  Future<void> _determinePosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Test if location services are enabled.
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // Location services are not enabled don't continue
+      // accessing the position and request users of the
+      // App to enable the location services.
+      return Future.error('Location services are disabled.'); //TODO:alert
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // Permissions are denied, next time you could try
+        // requesting permissions again (this is also where
+        // Android's shouldShowRequestPermissionRationale
+        // returned true. According to Android guidelines
+        // your App should show an explanatory UI now.
+        return Future.error('Location permissions are denied'); //TODO:alert
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      // Permissions are denied forever, handle appropriately.
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.'); //TODO:alert
+    }
+
+    // When we reach here, permissions are granted and we can
+    // continue accessing the position of the device.
+    var position = await Geolocator.getCurrentPosition();
+    _currentLatitude = position.latitude;
+    _currentLongitude = position.longitude;
+
+    var currentLocationMarker = Marker(
+        point: LatLng(_currentLatitude, _currentLongitude),
+        builder: (_) {
+          return const Icon(
+            Icons.location_on_rounded,
+            size: 40,
+            color: Colors.green,
+          );
+        });
+    _countryMarkerList.add(currentLocationMarker);
+
+    _isLocationLoading = false;
+    _setLoadedData();
   }
 
   @override
   Widget build(BuildContext context) {
     double _panelHeightClosed = MediaQuery.of(context).size.height * 0.18;
     double _panelHeightOpen = MediaQuery.of(context).size.height * 0.8;
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorConstants.kAppBackgroundColor,
@@ -80,16 +153,17 @@ class _HomePageState extends State<HomePage> {
                 body: SizedBox(
                     height: MediaQuery.of(context).size.height,
                     width: MediaQuery.of(context).size.width,
-                    child: _map()),
+                    child: _getMap()),
               ),
       ),
     );
   }
 
-  Widget _map() {
+  Widget _getMap() {
     return FlutterMap(
       mapController: _mapController,
-      options: MapOptions(zoom: 5, center: _myLocation),
+      options: MapOptions(
+          zoom: 5, center: LatLng(_currentLatitude, _currentLongitude)),
       nonRotatedLayers: [
         TileLayerOptions(urlTemplate: kUrlTemplate, additionalOptions: {
           'accessToken': kMapboxToken,
@@ -98,30 +172,5 @@ class _HomePageState extends State<HomePage> {
         MarkerLayerOptions(markers: _countryMarkerList)
       ],
     );
-  }
-
-  void _createMarkers() {
-    for (var country in _countryList.countries) {
-      var marker = Marker(
-          point: LatLng(country.latLng[0], country.latLng[1]),
-          builder: (_) {
-            return const Icon(
-              Icons.location_on_rounded,
-              size: 40,
-              color: ColorConstants.kMarkerColor,
-            );
-          });
-      _countryMarkerList.add(marker);
-    }
-    var currentLocationMarker = Marker(
-        point: _myLocation,
-        builder: (_) {
-          return const Icon(
-            Icons.location_on_rounded,
-            size: 40,
-            color: Colors.green,
-          );
-        });
-    _countryMarkerList.add(currentLocationMarker);
   }
 }

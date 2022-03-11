@@ -17,14 +17,14 @@ class _CountryCardState extends State<CountryCard> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => HomePage(
-                    latitude: widget.countryDetail.latLng[0],
-                    longitude: widget.countryDetail.latLng[1],
-                  )),
-        );
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //       builder: (context) => HomePage(
+        //             latitude: widget.countryDetail.latLng[0],
+        //             longitude: widget.countryDetail.latLng[1],
+        //           )),
+        // );
       },
       child: Card(
         elevation: 0,
