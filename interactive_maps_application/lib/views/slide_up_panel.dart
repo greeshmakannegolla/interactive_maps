@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:interactive_maps_application/helpers/helper_functions.dart';
 import 'package:interactive_maps_application/helpers/string_constants.dart';
 import 'package:interactive_maps_application/models/country_data_model.dart';
-import 'package:interactive_maps_application/services/api_calls.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '../helpers/color_constants.dart';
@@ -12,8 +10,11 @@ import '../reusable_widgets/country_card.dart';
 class PanelWidget extends StatefulWidget {
   final ScrollController scrollController;
   final PanelController panelController;
+  final CountryDataListModel countryList;
 
-  const PanelWidget(this.scrollController, this.panelController, {Key? key})
+  const PanelWidget(
+      this.scrollController, this.panelController, this.countryList,
+      {Key? key})
       : super(key: key);
 
   @override
@@ -21,30 +22,14 @@ class PanelWidget extends StatefulWidget {
 }
 
 class _PanelWidgetState extends State<PanelWidget> {
-  bool _isLoading = true;
-
-  CountryDataListModel _countryList = CountryDataListModel();
   List<CountryDataModel> _filteredCountryList = [];
   final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _fetchCountryList();
-  }
 
-  _fetchCountryList() async {
-    try {
-      _countryList = await getCountryList();
-      _filteredCountryList.clear();
-      _filteredCountryList.addAll(_countryList.countries);
-    } catch (e) {
-      //TODO: Show something went wrong popup
-      //TODO: Check internet
-    } finally {
-      _isLoading = false;
-      setState(() {});
-    }
+    _filteredCountryList.addAll(widget.countryList.countries);
   }
 
   @override
@@ -84,26 +69,21 @@ class _PanelWidgetState extends State<PanelWidget> {
                           borderSide: BorderSide.none),
                       contentPadding: EdgeInsets.zero)),
             )),
-            _isLoading
-                ? SpinKitDoubleBounce(
-                    color: ColorConstants.kMarkerColor.withOpacity(0.5),
-                    size: 40,
-                  )
-                : Expanded(
-                    child: ListView.builder(
-                      controller: widget.scrollController,
-                      shrinkWrap: true,
-                      physics: const ClampingScrollPhysics(),
-                      itemCount: _filteredCountryList.length,
-                      itemBuilder: (BuildContext ctx, int index) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 3, horizontal: 8),
-                          child: CountryCard(_filteredCountryList[index]),
-                        );
-                      },
-                    ),
-                  ),
+            Expanded(
+              child: ListView.builder(
+                controller: widget.scrollController,
+                shrinkWrap: true,
+                physics: const ClampingScrollPhysics(),
+                itemCount: _filteredCountryList.length,
+                itemBuilder: (BuildContext ctx, int index) {
+                  return Padding(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 3, horizontal: 8),
+                    child: CountryCard(_filteredCountryList[index]),
+                  );
+                },
+              ),
+            ),
           ],
         ));
   }
@@ -131,7 +111,7 @@ class _PanelWidgetState extends State<PanelWidget> {
 
   void onSearch(String searchText) {
     _filteredCountryList.clear();
-    _filteredCountryList.addAll(_countryList.countries);
+    _filteredCountryList.addAll(widget.countryList.countries);
 
     if (_searchController.text.isNotEmpty) {
       _filteredCountryList = searchCountry(searchText, _filteredCountryList);
