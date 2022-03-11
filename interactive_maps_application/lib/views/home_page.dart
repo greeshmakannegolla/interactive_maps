@@ -93,37 +93,36 @@ class _HomePageState extends State<HomePage> {
     return MediaQuery.removePadding(
         context: context,
         removeTop: true,
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              const SizedBox(
-                height: 18,
-              ),
-              _buildDragHandle(),
-              const SizedBox(
-                height: 18,
-              ),
-              const Text(
-                "Explore",
-                style: kHeader,
-              ),
-              const SizedBox(
-                height: 36,
-              ),
-              ListView.builder(
-                controller: scrollController,
-                shrinkWrap: true,
-                physics: const ClampingScrollPhysics(),
-                itemCount: 30, // TODO: Get from API
-                itemBuilder: (BuildContext ctx, int index) {
-                  return const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 3, horizontal: 8),
-                    child: CountryCard(),
-                  );
-                },
-              ),
-            ],
-          ),
+        child: Column(
+          children: [
+            const SizedBox(
+              height: 18,
+            ),
+            _buildDragHandle(),
+            const SizedBox(
+              height: 18,
+            ),
+            const Text(
+              "Explore",
+              style: kHeader,
+            ),
+            const SizedBox(
+              height: 36,
+            ),
+            //TODO: Check scroll renderflex
+            ListView.builder(
+              controller: scrollController,
+              shrinkWrap: true,
+              physics: const ClampingScrollPhysics(),
+              itemCount: 5, // TODO: Get from API
+              itemBuilder: (BuildContext ctx, int index) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 3, horizontal: 8),
+                  child: CountryCard(),
+                );
+              },
+            ),
+          ],
         ));
   }
 
@@ -159,7 +158,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildDragHandle() {
     return InkWell(
-      onTap: togglePanel,
+      onTap: togglePanel, //TODO: Check why not working
       child: Center(
         child: Container(
           width: 30,
