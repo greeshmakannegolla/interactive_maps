@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:interactive_maps_application/helpers/color_constants.dart';
 import 'package:interactive_maps_application/helpers/string_constants.dart';
+import 'package:interactive_maps_application/helpers/style_constants.dart';
 import 'package:interactive_maps_application/reusable_widgets/country_card.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:latlong2/latlong.dart';
@@ -16,8 +17,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
 
-  double _panelHeightOpen = 0;
-  final double _panelHeightClosed = 95.0;
+  final PanelController panelController = PanelController();
 
   var MAPBOX_ACCESS_TOKEN =
       'pk.eyJ1IjoiZ3JlZXNobWFrbCIsImEiOiJjbDBqaXg3NDkwY3gwM2Ruc21ucmw5eDNsIn0.yUakmkO38Jo5aYyMVb81gw';
@@ -28,7 +28,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    _panelHeightOpen = MediaQuery.of(context).size.height * .80;
+    double _panelHeightClosed = MediaQuery.of(context).size.height * 0.1;
+    double _panelHeightOpen = MediaQuery.of(context).size.height * 0.8;
     return GestureDetector(
       onTap: () {
         FocusScopeNode currentFocus = FocusScope.of(context);
@@ -41,10 +42,12 @@ class _HomePageState extends State<HomePage> {
         child: Scaffold(
           backgroundColor: ColorConstants.kAppBackgroundColor,
           body: SlidingUpPanel(
+            controller: panelController,
             maxHeight: _panelHeightOpen,
             minHeight: _panelHeightClosed,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
             onPanelSlide: (double pos) => setState(() {}),
-            panelBuilder: (sc) => _panel(sc),
+            panelBuilder: (controller) => _panel(controller, panelController),
             body: Padding(
               padding: const EdgeInsets.fromLTRB(8, 20, 8, 0),
               child: SingleChildScrollView(
@@ -85,20 +88,42 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _panel(ScrollController sc) {
+  Widget _panel(
+      ScrollController scrollController, PanelController panelController) {
     return MediaQuery.removePadding(
         context: context,
         removeTop: true,
-        child: ListView.builder(
-          shrinkWrap: true,
-          physics: const ClampingScrollPhysics(),
-          itemCount: 10, // TODO: Get from API
-          itemBuilder: (BuildContext ctx, int index) {
-            return const Padding(
-              padding: EdgeInsets.symmetric(vertical: 3, horizontal: 8),
-              child: CountryCard(),
-            );
-          },
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              const SizedBox(
+                height: 18,
+              ),
+              _buildDragHandle(),
+              const SizedBox(
+                height: 18,
+              ),
+              const Text(
+                "Explore",
+                style: kHeader,
+              ),
+              const SizedBox(
+                height: 36,
+              ),
+              ListView.builder(
+                controller: scrollController,
+                shrinkWrap: true,
+                physics: const ClampingScrollPhysics(),
+                itemCount: 30, // TODO: Get from API
+                itemBuilder: (BuildContext ctx, int index) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 3, horizontal: 8),
+                    child: CountryCard(),
+                  );
+                },
+              ),
+            ],
+          ),
         ));
   }
 
@@ -130,5 +155,26 @@ class _HomePageState extends State<HomePage> {
         ])
       ],
     );
+  }
+
+  Widget _buildDragHandle() {
+    return InkWell(
+      onTap: togglePanel,
+      child: Center(
+        child: Container(
+          width: 30,
+          height: 6,
+          decoration: BoxDecoration(
+              color: ColorConstants.kSecondaryTextColor.withOpacity(0.4),
+              borderRadius: BorderRadius.circular(12)),
+        ),
+      ),
+    );
+  }
+
+  void togglePanel() {
+    panelController.isPanelOpen
+        ? panelController.close()
+        : panelController.open();
   }
 }
