@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:interactive_maps_application/helpers/color_constants.dart';
 import 'package:interactive_maps_application/helpers/style_constants.dart';
+import 'package:interactive_maps_application/models/country_data_model.dart';
 
 class CountryCard extends StatefulWidget {
-  const CountryCard({Key? key}) : super(key: key);
+  final CountryDataModel countryDetail;
+  const CountryCard(this.countryDetail, {Key? key}) : super(key: key);
 
   @override
   State<CountryCard> createState() => _CountryCardState();
@@ -20,29 +22,29 @@ class _CountryCardState extends State<CountryCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            //TODO: Get from API
-            const Text(
-              "India",
+            Text(
+              widget.countryDetail.name,
               style: kSubHeader,
             ),
             const SizedBox(
               height: 10,
             ),
-            const Text(
-              'Capital city: ',
+            Text(
+              'Capital city: ' + widget.countryDetail.capital.join(', '),
               style: kData,
             ),
-            //TODO: Get from API
             const SizedBox(
               height: 10,
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                Text('Language: ', style: kData), //TODO: Get from API
-                Text('Currency: ', style: kData), //TODO: Get from API
-              ],
+            Text(
+              'Population: ' + widget.countryDetail.population.toString(),
+              style: kData,
             ),
+            const SizedBox(
+              height: 10,
+            ),
+            Text('Borders: ' + widget.countryDetail.borders.join(', '),
+                style: kData),
           ],
         ),
       ),
