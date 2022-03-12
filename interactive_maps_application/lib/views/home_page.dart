@@ -3,11 +3,13 @@ import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:interactive_maps_application/helpers/color_constants.dart';
+import 'package:interactive_maps_application/helpers/controller_provider.dart';
 import 'package:interactive_maps_application/helpers/string_constants.dart';
 import 'package:interactive_maps_application/models/country_data_model.dart';
 import 'package:interactive_maps_application/services/api_calls.dart';
 import 'package:interactive_maps_application/views/slide_up_panel.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:provider/provider.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 class HomePage extends StatefulWidget {
@@ -18,8 +20,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final PanelController _panelController = PanelController();
-  final MapController _mapController = MapController();
   final List<Marker> _countryMarkerList = [];
 
   bool _isCountriesLoading = true;
@@ -134,11 +134,12 @@ class _HomePageState extends State<HomePage> {
     // When we reach here, permissions are granted and we can
     // continue accessing the position of the device.
     var position = await Geolocator.getCurrentPosition();
+
     _currentLatitude = position.latitude;
     _currentLongitude = position.longitude;
 
     var currentLocationMarker = Marker(
-        point: LatLng(_currentLatitude, _currentLongitude),
+        point: LatLng(position.latitude, position.longitude),
         builder: (_) {
           GlobalKey toolTipKey = GlobalKey();
           return InkWell(
@@ -178,18 +179,21 @@ class _HomePageState extends State<HomePage> {
                 size: 40,
               )
             : SlidingUpPanel(
-                controller: _panelController,
+                controller: context.read<ControllerProvider>().panelController,
                 maxHeight: _panelHeightOpen,
                 minHeight: _panelHeightClosed,
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(20)),
                 onPanelSlide: (double pos) => setState(() {}),
                 panelBuilder: (scrollController) => PanelWidget(
-                    scrollController, _panelController, _countryList),
+                  scrollController,
+                  _countryList,
+                ),
                 body: SizedBox(
-                    height: MediaQuery.of(context).size.height,
-                    width: MediaQuery.of(context).size.width,
-                    child: _getMap()),
+                  height: MediaQuery.of(context).size.height,
+                  width: MediaQuery.of(context).size.width,
+                  child: _getMap(),
+                ),
               ),
       ),
     );
@@ -197,7 +201,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _getMap() {
     return FlutterMap(
-      mapController: _mapController,
+      mapController: context.read<ControllerProvider>().mapController,
       options: MapOptions(
           zoom: 5, center: LatLng(_currentLatitude, _currentLongitude)),
       nonRotatedLayers: [
