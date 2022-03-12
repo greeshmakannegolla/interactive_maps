@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:interactive_maps_application/helpers/controller_provider.dart';
+import 'package:interactive_maps_application/providers/controller_provider.dart';
 import 'package:interactive_maps_application/helpers/helper_functions.dart';
 import 'package:interactive_maps_application/helpers/string_constants.dart';
 import 'package:interactive_maps_application/models/country_data_model.dart';
+import 'package:interactive_maps_application/views/reusable_widgets/country_card.dart';
 import 'package:provider/provider.dart';
 import '../helpers/color_constants.dart';
-import '../reusable_widgets/country_card.dart';
 
 class PanelWidget extends StatefulWidget {
   final ScrollController scrollController;

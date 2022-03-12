@@ -3,7 +3,7 @@ import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:interactive_maps_application/helpers/color_constants.dart';
-import 'package:interactive_maps_application/helpers/controller_provider.dart';
+import 'package:interactive_maps_application/providers/controller_provider.dart';
 import 'package:interactive_maps_application/helpers/helper_functions.dart';
 import 'package:interactive_maps_application/helpers/string_constants.dart';
 import 'package:interactive_maps_application/models/country_data_model.dart';
@@ -51,6 +51,7 @@ class _HomePageState extends State<HomePage> {
 
   _fetchCountryList() async {
     try {
+      //Can check for internet connectivity before the actual fetch
       _countryList = await getCountryList();
       _createMarkers();
     } catch (e) {

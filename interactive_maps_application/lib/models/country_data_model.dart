@@ -1,4 +1,5 @@
 class CountryDataModel {
+  //default values
   String name = '';
   int population = 0;
   List capital = [];

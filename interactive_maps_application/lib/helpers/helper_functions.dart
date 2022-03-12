@@ -18,7 +18,7 @@ List<CountryDataModel> searchCountry(
 }
 
 showAlertDialog(BuildContext context, String title, String message) {
-  // set up the button
+  //set up the button
   Widget okButton = TextButton(
     child: const Text("OK"),
     onPressed: () {
@@ -26,7 +26,7 @@ showAlertDialog(BuildContext context, String title, String message) {
     },
   );
 
-  // set up the AlertDialog
+  //set up the AlertDialog
   AlertDialog alert = AlertDialog(
     title: Text(title),
     content: Text(message),
