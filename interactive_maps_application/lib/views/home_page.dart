@@ -4,6 +4,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:interactive_maps_application/helpers/color_constants.dart';
 import 'package:interactive_maps_application/helpers/controller_provider.dart';
+import 'package:interactive_maps_application/helpers/helper_functions.dart';
 import 'package:interactive_maps_application/helpers/string_constants.dart';
 import 'package:interactive_maps_application/models/country_data_model.dart';
 import 'package:interactive_maps_application/services/api_calls.dart';
@@ -26,6 +27,7 @@ class _HomePageState extends State<HomePage> {
   bool _isLocationLoading = true;
   bool _isLoading = true;
 
+  //default coordinates
   double _currentLatitude = 47.6964719;
   double _currentLongitude = 13.3457347;
 
@@ -52,8 +54,8 @@ class _HomePageState extends State<HomePage> {
       _countryList = await getCountryList();
       _createMarkers();
     } catch (e) {
-      //TODO: Show something went wrong popup
-      //TODO: Check internet
+      //Can log error
+      showAlertDialog(context, 'Oops!', 'Something went wrong');
     } finally {
       _isCountriesLoading = false;
       _setLoadedData();
@@ -66,17 +68,19 @@ class _HomePageState extends State<HomePage> {
           point: LatLng(country.latLng[0], country.latLng[1]),
           builder: (_) {
             GlobalKey toolTipKey = GlobalKey();
-//TODO: complete all details
+
             String getCountryDetails() {
-              var msg = 'Name : ' +
+              String message = 'Name : ' +
                   country.name +
                   '\n' +
                   'Capital : ' +
                   country.capital.join(', ') +
                   '\n' +
                   'Population : ' +
-                  country.population.toString();
-              return msg;
+                  country.population.toString() +
+                  '\nBorders: ' +
+                  country.borders.join(', ');
+              return message;
             }
 
             return InkWell(
@@ -109,7 +113,8 @@ class _HomePageState extends State<HomePage> {
       // Location services are not enabled don't continue
       // accessing the position and request users of the
       // App to enable the location services.
-      return Future.error('Location services are disabled.'); //TODO:alert
+      showAlertDialog(context, 'Note',
+          'Location services are disabled. Please turn on location.');
     }
 
     permission = await Geolocator.checkPermission();
@@ -121,14 +126,16 @@ class _HomePageState extends State<HomePage> {
         // Android's shouldShowRequestPermissionRationale
         // returned true. According to Android guidelines
         // your App should show an explanatory UI now.
-        return Future.error('Location permissions are denied'); //TODO:alert
+
+        showAlertDialog(context, 'Note',
+            "Location permissions are denied. You can enable them through phone 'Settings'.");
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
       // Permissions are denied forever, handle appropriately.
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.'); //TODO:alert
+      showAlertDialog(context, 'Note',
+          'Location permissions are permanently denied, we cannot request permissions.');
     }
 
     // When we reach here, permissions are granted and we can
@@ -148,12 +155,12 @@ class _HomePageState extends State<HomePage> {
               _toolTip.ensureTooltipVisible();
             },
             child: Tooltip(
-              message: 'Current Location',
+              message: kCurrentMarkerText,
               key: toolTipKey,
               child: const Icon(
-                Icons.location_on_rounded,
-                size: 50,
-                color: Colors.green,
+                Icons.person,
+                size: 40,
+                color: ColorConstants.kCurrentMarkerColor,
               ),
             ),
           );
