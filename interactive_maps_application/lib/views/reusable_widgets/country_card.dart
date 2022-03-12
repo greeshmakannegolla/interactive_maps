@@ -3,6 +3,7 @@ import 'package:interactive_maps_application/helpers/color_constants.dart';
 import 'package:interactive_maps_application/providers/controller_provider.dart';
 import 'package:interactive_maps_application/helpers/style_constants.dart';
 import 'package:interactive_maps_application/models/country_data_model.dart';
+import 'package:interactive_maps_application/providers/selected_country_provider.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
@@ -20,6 +21,9 @@ class CountryCard extends StatelessWidget {
             .read<ControllerProvider>()
             .mapController
             .move(LatLng(countryDetail.latLng[0], countryDetail.latLng[1]), 4);
+        context
+            .read<SelectedCountryProvider>()
+            .setSelectedCountry(countryDetail);
       },
       child: Card(
         elevation: 0,

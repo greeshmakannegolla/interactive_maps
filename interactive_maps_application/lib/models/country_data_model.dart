@@ -7,6 +7,8 @@ class CountryDataModel {
   String flagPath = '';
   List latLng = [47.6964719, 13.3457347];
 
+  CountryDataModel();
+
   CountryDataModel.fromJSON(Map<String, dynamic> json) {
     name = json["name"]['common'] ?? '';
     population = json['population'] ?? 0;

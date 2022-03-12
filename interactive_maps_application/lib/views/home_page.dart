@@ -7,6 +7,7 @@ import 'package:interactive_maps_application/providers/controller_provider.dart'
 import 'package:interactive_maps_application/helpers/helper_functions.dart';
 import 'package:interactive_maps_application/helpers/string_constants.dart';
 import 'package:interactive_maps_application/models/country_data_model.dart';
+import 'package:interactive_maps_application/providers/selected_country_provider.dart';
 import 'package:interactive_maps_application/services/api_calls.dart';
 import 'package:interactive_maps_application/views/slide_up_panel.dart';
 import 'package:latlong2/latlong.dart';
@@ -68,8 +69,6 @@ class _HomePageState extends State<HomePage> {
       var marker = Marker(
           point: LatLng(country.latLng[0], country.latLng[1]),
           builder: (_) {
-            GlobalKey toolTipKey = GlobalKey();
-
             String getCountryDetails() {
               String message = 'Name : ' +
                   country.name +
@@ -84,18 +83,28 @@ class _HomePageState extends State<HomePage> {
               return message;
             }
 
-            return InkWell(
-              onTap: () {
-                final dynamic _toolTip = toolTipKey.currentState;
-                _toolTip.ensureTooltipVisible();
-              },
-              child: Tooltip(
-                key: toolTipKey,
-                message: getCountryDetails(),
-                child: const Icon(
+            Color getMarkerColor() {
+              if (country.name ==
+                  context
+                      .watch<SelectedCountryProvider>()
+                      .getSelectedCountry()
+                      .name) {
+                return ColorConstants.kTextPrimaryColor;
+              }
+              return ColorConstants.kMarkerColor;
+            }
+
+            return Tooltip(
+              triggerMode: TooltipTriggerMode.tap,
+              enableFeedback: true,
+              message: getCountryDetails(),
+              child: SizedBox(
+                height: 50,
+                width: 50,
+                child: Icon(
                   Icons.location_on_rounded,
                   size: 50,
-                  color: ColorConstants.kMarkerColor,
+                  color: getMarkerColor(),
                 ),
               ),
             );
